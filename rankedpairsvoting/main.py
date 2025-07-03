@@ -55,9 +55,9 @@ def ranked_pairs_voting(candidates: list[str], votes: list[list[int]]) -> list[s
 
     # Shuffle for fairness and sort by margin
     # Otherwise pairs may favor candidates placed first in the list
-    pairwise_margins = [*pairwise_margins.items()]
-    random.shuffle(pairwise_margins)
-    sorted_pairs = sorted(pairwise_margins, key=lambda x: x[1], reverse=True)
+    pairwise_margins_list = [*pairwise_margins.items()]
+    random.shuffle(pairwise_margins_list)
+    sorted_pairs = sorted(pairwise_margins_list, key=lambda x: x[1], reverse=True)
     
     # Construct the graph with total ordering of candidates
     graph = TotalOrderGraph(len(candidates))

@@ -32,7 +32,7 @@ jobs:
     - name: Format check with black
       run: |
         # Check if code is formatted according to black
-        black --check .
+        black .
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names

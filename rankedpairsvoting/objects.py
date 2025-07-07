@@ -21,10 +21,6 @@ class TotalOrderGraph:
         all_children.add(small)
         self.children_of[big].update(all_children)
         for parent in self.parents_of[big]:
-            # Remove already added children
-            all_children.difference_update(self.children_of[parent])
-            if not all_children:
-                break # All children already added
             self.children_of[parent].update(all_children)
 
         # Update children's parents
@@ -32,10 +28,6 @@ class TotalOrderGraph:
         all_parents.add(big)
         self.parents_of[small].update(all_parents)
         for child in self.children_of[small]:
-            # Remove already added parents
-            all_parents.difference_update(self.parents_of[child])
-            if not all_parents:
-                break # All parents already added
             self.parents_of[child].update(all_parents)
 
     def get_order(self) -> list[int]:

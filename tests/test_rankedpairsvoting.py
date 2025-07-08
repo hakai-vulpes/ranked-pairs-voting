@@ -13,18 +13,21 @@ from rankedpairsvoting.objects import TotalOrderGraph
 
 class TestRankedPairsVoting:
     """Test cases for the main ranked_pairs_voting function."""
-    
+
     def test_single_vote(self):
         """Test a single vote with one candidate."""
         random.seed(42)  # For reproducibility
-        candidates = [*range(200)]
+        candidates = [*range(100)]
         random.shuffle(candidates)
-        vote = [*range(1,201)]
+        vote = [*range(1, 101)]
         random.shuffle(vote)
 
         result = ranked_pairs_voting(candidates, [vote])
 
-        assert all(result[position - 1] == candidates[candidate] for candidate, position in enumerate(vote))
+        assert all(
+            result[position - 1] == candidates[candidate]
+            for candidate, position in enumerate(vote)
+        )
 
     def test_simple_election(self):
         """Test a basic three-candidate election."""

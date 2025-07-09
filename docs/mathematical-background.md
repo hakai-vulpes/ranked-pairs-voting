@@ -132,10 +132,10 @@ Let n = number of candidates, v = number of voters.
    - Sort all pairs by margin
 
 4. **Graph Construction**: O(n²)
-   - For each of O(n²) pairs, check for cycles in O(1) time (due to extra space).
+   - For each of O(n²) pairs, check for cycles in O(1) time (due to allocating extra space).
 
-5. **Topological Sort**: O(n log n)
-   - Standard topological sort on dense graph
+5. **Reduced Topological Sort**: O(n)
+   - Simple topological sort
 
 **Overall**: O(n² × v + n² log n)
 
@@ -227,7 +227,7 @@ This theorem proves that no deterministic voting method can be both strategy-pro
 
 ### Efficiency
 
-1. **Total Order Graph**: This part is probably very optimizable
+1. **Total Order Graph**: This part is maybe optimizable
 
 ### Parallel Processing
 
@@ -239,7 +239,7 @@ Several parts of the algorithm can be parallelized:
 
 ## Going forward
 
-1. Explore how to include in the algorithm weak preferences, currently voters having to chose between risking including those and causing the No Show Paradox, or being underrepresented.
+1. Explore how to include in the algorithm weak preferences, currently voters having to chose between risking including those and causing the No Show Paradox, or being underrepresented. They probably could be implemented as tie breakers, but it's hard for me to imagine a ballot which allows for this without making it too complex.
 
 ## References
 

@@ -124,14 +124,15 @@ Performs Ranked Pairs voting on the given candidates and votes.
 **Raises:**
 - `ValueError`: If vote format is invalid or candidates list is empty or incomplete
 
-### `TotalOrderGraph`
+### `PartialOrderGraph`
 
 Internal class used to construct and maintain the directed acyclic graph for candidate ordering.
 
 **Methods:**
 - `__init__(nodes: int)`: Initialize graph with specified number of nodes
 - `add_edge(big: int, small: int)`: Add a directed edge from big to small
-- `get_order() -> list[int]`: Return topological ordering of nodes
+- `add_edges(edges: list[tuple[int, int]])`: Add multiple edges in order of importance
+- `get_total_order() -> list[int]`: Return total ordering of nodes
 
 ## Examples
 

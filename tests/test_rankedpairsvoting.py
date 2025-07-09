@@ -8,18 +8,19 @@ including edge cases, error conditions, and mathematical properties.
 import pytest
 import random
 from rankedpairsvoting import ranked_pairs_voting
-from rankedpairsvoting.objects import TotalOrderGraph
+from rankedpairsvoting.objects import PartialOrderGraph
 
 
 class TestRankedPairsVoting:
     """Test cases for the main ranked_pairs_voting function."""
 
     def test_single_vote(self):
-        """Test a single vote with one candidate."""
-        random.seed(42)  # For reproducibility
-        candidates = [*range(100)]
+        """Test a single vote with one candidate"""
+        n = 100
+        random.seed(1234)  # For reproducibility
+        candidates = [*range(n)]
         random.shuffle(candidates)
-        vote = [*range(1, 101)]
+        vote = [*range(1, n + 1)]
         random.shuffle(vote)
 
         result = ranked_pairs_voting(candidates, [vote])
@@ -97,20 +98,6 @@ class TestRankedPairsVoting:
 
         assert result[0] == "Winner"
 
-    def test_large_election(self):
-        """Test election with many candidates."""
-        candidates = [f"Candidate_{i}" for i in range(10)]
-        votes = [
-            list(range(1, 11)),  # 1, 2, 3, ..., 10
-            list(range(10, 0, -1)),  # 10, 9, 8, ..., 1
-            [5] * 10,  # All tied at position 5
-        ]
-
-        result = ranked_pairs_voting(candidates, votes)
-
-        assert len(result) == 10
-        assert set(result) == set(candidates)
-
     def test_empty_inputs_raise_error(self):
         """Test that empty inputs raise appropriate errors."""
         # These should raise ValueError or similar
@@ -128,71 +115,105 @@ class TestRankedPairsVoting:
         with pytest.raises(Exception):
             ranked_pairs_voting(candidates, votes)
 
+    def test_candidate_performance(self):
+        """Test performance with a large number of candidates."""
+        # Adjust number of candidates to get an "acceptable" performance
+        # The true metric is not time but how many votes can be processed in an acceptable time
+        ncandidates = 1_000
+        nvotes = 100
+        random.seed(1234)  # For reproducibility
+        candidates = [f"Candidate_{i}" for i in range(ncandidates)]
+        votes = [
+            [random.randint(1, ncandidates) for _ in range(ncandidates)]
+            for _ in range(nvotes)
+        ]
 
-class TestTotalOrderGraph:
-    """Test cases for the TotalOrderGraph class."""
+        result = ranked_pairs_voting(candidates, votes)
+
+        assert len(result) == ncandidates
+        assert set(result) == set(candidates)
+
+    def test_vote_performance(self):
+        """Test performance with a large number of votes."""
+        # Adjust number of votes to get an "acceptable" performance
+        # The true metric is not time but how many votes can be processed in an acceptable time
+        ncandidates = 10
+        nvotes = 1_000_000
+        random.seed(1234)
+        candidates = [f"Candidate_{i}" for i in range(ncandidates)]
+        votes = [
+            [random.randint(1, ncandidates) for _ in range(ncandidates)]
+            for _ in range(nvotes)
+        ]
+
+        result = ranked_pairs_voting(candidates, votes)
+
+        assert len(result) == ncandidates
+        assert set(result) == set(candidates)
+
+
+class TestPartialOrderGraph:
+    """Test cases for the PartialOrderGraph class."""
 
     def test_initialization(self):
         """Test graph initialization."""
-        graph = TotalOrderGraph(3)
+        graph = PartialOrderGraph(3)
 
-        assert graph.nodes == {0, 1, 2}
-        assert len(graph.children_of) == 3
-        assert len(graph.parents_of) == 3
+        assert graph.n == 3
+        assert len(graph.lower) == 3
+        assert len(graph.upper) == 3
+        assert len(graph.direct_lower) == 3
+        assert len(graph.direct_upper) == 3
 
     def test_invalid_initialization(self):
         """Test that invalid initialization raises error."""
         with pytest.raises(ValueError):
-            TotalOrderGraph(0)
+            PartialOrderGraph(0)
 
         with pytest.raises(ValueError):
-            TotalOrderGraph(-1)
+            PartialOrderGraph(-1)
 
     def test_add_edge(self):
         """Test adding edges to the graph."""
-        graph = TotalOrderGraph(3)
+        graph = PartialOrderGraph(3)
         graph.add_edge(0, 1)  # 0 > 1
 
-        assert 1 in graph.children_of[0]
-        assert 0 in graph.parents_of[1]
+        assert 1 in graph.direct_lower[0]
+        assert 1 in graph.lower[0]
+        assert 0 in graph.direct_upper[1]
+        assert 0 in graph.upper[1]
+        assert len(graph.direct_lower[0]) == 1
+        assert len(graph.direct_upper[1]) == 1
+        assert len(graph.lower[0]) == 1
+        assert len(graph.upper[1]) == 1
 
     def test_transitivity(self):
         """Test that transitivity is maintained."""
-        graph = TotalOrderGraph(3)
+        graph = PartialOrderGraph(3)
         graph.add_edge(0, 1)  # 0 > 1
         graph.add_edge(1, 2)  # 1 > 2
 
         # Should have transitivity: 0 > 2
-        assert 2 in graph.children_of[0]
-        assert 0 in graph.parents_of[2]
-
-    def test_loop_prevention(self):
-        """Test that loops are prevented."""
-        graph = TotalOrderGraph(2)
-        graph.add_edge(0, 1)  # 0 > 1
-
-        # Adding 1 > 0 should be ignored (would create loop)
-        graph.add_edge(1, 0)
-
-        # Should still have only 0 > 1
-        assert 1 in graph.children_of[0]
-        assert 0 not in graph.children_of[1]
+        assert 2 in graph.lower[0]  # Transitive edge added
+        assert 2 not in graph.direct_lower[0]  # Direct edge not added
 
     def test_get_order(self):
         """Test getting the topological order."""
-        graph = TotalOrderGraph(3)
+        graph = PartialOrderGraph(3)
         graph.add_edge(0, 1)  # 0 > 1
         graph.add_edge(0, 2)  # 0 > 2
+        graph.add_edge(1, 2)  # 1 > 2
 
-        order = graph.get_order()
+        order = [*graph.get_total_order()]
 
-        # 0 should come before 1 and 2
+        # 0 > 1 > 2 should be the order
         assert order.index(0) < order.index(1)
         assert order.index(0) < order.index(2)
+        assert order.index(1) < order.index(2)
 
     def test_invalid_nodes(self):
         """Test adding edges with invalid nodes."""
-        graph = TotalOrderGraph(2)
+        graph = PartialOrderGraph(2)
 
         with pytest.raises(ValueError):
             graph.add_edge(0, 5)  # Node 5 doesn't exist

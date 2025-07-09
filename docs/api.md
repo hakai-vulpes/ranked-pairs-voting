@@ -54,7 +54,7 @@ When two candidates are tied in pairwise comparison, the algorithm randomly dete
 
 ## Classes
 
-### `TotalOrderGraph`
+### `PartialOrderGraph`
 
 Internal class used to construct and maintain a directed acyclic graph for candidate ordering.
 
@@ -70,7 +70,7 @@ Initialize a graph with the specified number of nodes.
 
 #### `add_edge(big: int, small: int)`
 
-Add a directed edge from the `big` node to the `small` node, maintaining the total order property.
+Add a directed edge from the `big` node to the `small` node, maintaining the partial order property.
 
 **Parameters:**
 - **big** (`int`): Source node (higher in ordering)
@@ -78,21 +78,35 @@ Add a directed edge from the `big` node to the `small` node, maintaining the tot
 
 **Behavior:**
 - Updates transitive relationships automatically
-- Ignores edges that would create loops
+- Ignores edges that would create cycles
 - Maintains parent-child relationships for all nodes
 
 **Raises:**
-- **ValueError**: If either node is not in the graph
+- **ValueError**: If either node is not in the graph or if adding edge to self
 
-#### `get_order() -> list[int]`
+#### `add_edges(edges: list[tuple[int, int]])`
 
-Return the topological ordering of nodes based on the current edge structure.
+Add multiple directed edges to the graph in order of importance.
+
+**Parameters:**
+- **edges** (`list[tuple[int, int]]`): A list of (big, small) tuples representing edges to add, ordered from most to least important
+
+**Behavior:**
+- Calls `add_edge` for each pair in sequence
+- Most important edges are added first and have priority
+
+#### `get_total_order() -> list[int]`
+
+Return the total ordering of nodes based on the current edge structure.
 
 **Returns:**
 - `list[int]`: Ordered list of node indices from highest to lowest in the total order
 
+**Raises:**
+- **ValueError**: If the graph does not represent a total order (e.g., has multiple heads or tails)
+
 **Algorithm:**
-The method sorts nodes by their number of parents (incoming edges), with nodes having fewer parents appearing first in the ordering.
+The method finds the head of the graph (node with no parents) and follows the chain of direct children to construct the total ordering.
 
 ## Type Definitions
 
@@ -128,14 +142,14 @@ The package includes robust error handling for common issues:
 - **Pairwise Comparisons**: O(n² × v) where n = candidates, v = votes
 - **Sorting Pairs**: O(n² log n)
 - **Graph Construction**: O(n²)
-- **Topological Sort**: O(n)
+- **Simple Topological Sort**: O(n)
 - **Overall**: O(n² × v + n² log n)
 
 ### Space Complexity
 
 - **Pairwise Matrix**: O(n²)
 - **Graph Storage**: O(n²)
-- **Overall**: O(n²)
+- **Overall**: O(n² + n × v)
 
 ## Examples
 

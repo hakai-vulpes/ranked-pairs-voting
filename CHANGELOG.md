@@ -17,5 +17,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fair tie resolution through randomization
 - Basic documentation and usage examples
 
+## [0.0.2] - 2025-07-09
+
+### Fixed
+- Refactored `TotalOrderGraph` to `PartialOrderGraph` for correct handling of candidate ordering
+
+### Added
+- Improved documentation and usage examples
+- Included more comprehensive test cases
+
 [Unreleased]: https://github.com/hakai-vulpes/ranked-pairs-voting/compare/v0.0.1...HEAD
 [0.0.1]: https://github.com/hakai-vulpese/ranked-pairs-voting/releases/tag/v0.0.1
+[0.0.2]: https://github.com/hakai-vulpese/ranked-pairs-voting/compare/v0.0.1...v0.0.2

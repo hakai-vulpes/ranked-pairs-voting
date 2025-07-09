@@ -45,6 +45,9 @@ This guide helps you set up a development environment for the Ranked Pairs Votin
 # Run all tests
 python -m pytest tests/
 
+# Run all tests and measure performance
+python -m pytest tests/ --durations=0
+
 # Run tests with coverage (requires pytest-cov)
 pip install pytest-cov  # Install if not already installed
 python -m pytest tests/ --cov=rankedpairsvoting --cov-report=html --cov-report=term
@@ -79,6 +82,10 @@ black --check rankedpairsvoting/ tests/
 ```bash
 # Run flake8 linter
 flake8 rankedpairsvoting/ tests/
+
+# Tests ran by actions in Github (necessary for pull requests)
+flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 ```
 
 ### Type Checking
@@ -121,23 +128,26 @@ python test_interactive.py
 
 ```
 ranked-pairs-voting/
-├── rankedpairsvoting/          # Main package
-│   ├── __init__.py            # Package initialization
-│   ├── main.py                # Main voting function
-│   └── objects.py             # Graph data structure
-├── tests/                     # Test suite
+├── rankedpairsvoting/               # Main package
+│   ├── __init__.py                 # Package initialization
+│   ├── main.py                     # Main voting function
+│   └── objects.py                  # Graph data structure
+├── tests/                          # Test suite
 │   ├── __init__.py
 │   └── test_rankedpairsvoting.py
-├── docs/                      # Documentation
-│   ├── api.md                 # API reference
-│   ├── development.md         # You are here!
-│   ├── examples.md            # Usage examples
-│   └── mathematical-background.md
-├── README.md                  # Main documentation
-├── CONTRIBUTING.md            # Contribution guidelines
-├── CHANGELOG.md               # Version history
-├── LICENSE                    # MIT license
-└── pyproject.toml            # Package configuration
+├── docs/                            # Documentation
+│   ├── api.md                      # API reference
+│   ├── development.md              # You are here!
+│   ├── examples.md                 # Usage examples
+│   └── mathematical-background.md  # Theoretical background and complexity analysis
+│
+├── README.md                       # Main documentation
+├── CONTRIBUTING.md                 # Contribution guidelines
+├── CHANGELOG.md                    # Version history
+├── LICENSE                         # MIT license
+├── pyproject.toml                  # Package configuration
+├── gitignore                       # Generated gitignore for Python and VSCode
+└── .flake8                         # Flake8 configuration (compatibility with black)
 ```
 
 ## Building the Package
@@ -304,40 +314,6 @@ Create `.vscode/settings.json`:
 2. Enable pytest as the test runner
 3. Configure Black as the formatter
 4. Enable flake8 for linting
-
-## Continuous Integration
-
-The project can be set up with GitHub Actions:
-
-```yaml
-# .github/workflows/test.yml
-name: Tests
-on: [push, pull_request]
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.9, '3.10', 3.11, 3.12]
-    steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        pip install -e ".[dev]"
-    - name: Run tests
-      run: |
-        pytest tests/ --cov=rankedpairsvoting
-    - name: Check formatting
-      run: |
-        black --check rankedpairsvoting/ tests/
-    - name: Lint
-      run: |
-        flake8 rankedpairsvoting/ tests/
-```
 
 ## Getting Help
 

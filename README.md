@@ -226,7 +226,14 @@ Documentation was written with AI and carefully revised by me, if there are any 
 ## Changelog
 
 ### v0.0.1 (Initial Release)
+
 - Basic Ranked Pairs implementation
 - Support for tied preferences
 - Graph-based candidate ordering
 - Comprehensive documentation and examples
+  
+## v0.0.2
+
+- Refactored `TotalOrderGraph` to `PartialOrderGraph` for correct handling of candidate ordering
+- Improved documentation and usage examples
+- Included more comprehensive test cases
